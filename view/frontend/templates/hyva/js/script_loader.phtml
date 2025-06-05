@@ -1,0 +1,62 @@
+<?php
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var HyvaCsp $hyvaCsp */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var StoreConfig $storeConfig */
+$storeConfig = $viewModels->require(StoreConfig::class);
+$siteKey = (string) $storeConfig->getStoreConfig('recaptcha_frontend/type_cf_turnstile/public_key');
+
+if (!$siteKey) {
+    return;
+}
+?>
+<script>
+    'use strict';
+
+    const turnstileLoadCallbacks = [];
+
+    function executeTurnstileLoadCallbacks () {
+        while (window.grecaptcha && turnstileLoadCallbacks.length > 0) {
+            const callback = turnstileLoadCallbacks.pop();
+            typeof callback === 'string' ? window[callback]() : callback();
+        }
+    }
+
+    (function() {
+        const loadTurnstileScript = (event) => {
+            if (window.grecaptcha || !event.target.form) {
+                return;
+            }
+
+            const url = 'https://challenges.cloudflare.com/turnstile/v0/api.js?compat=recaptcha&render=explicit&onload=executeTurnstileLoadCallbacks';
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = url;
+            script.async = true;
+            document.head.appendChild(script);
+
+            script.addEventListener('load', () => {
+                Array.from(document.querySelectorAll('button[data-recaptcha-btn]:disabled')).forEach(btn => btn.removeAttribute('disabled'));
+            });
+        }
+
+        window.forceLoadTurnstileScript = (form) => {
+            loadTurnstileScript({target: {form: form || 'dummy'}});
+            executeTurnstileLoadCallbacks();
+        };
+
+        document.body.addEventListener('input', loadTurnstileScript, { once: true });
+        document.body.addEventListener('focus', loadTurnstileScript, { once: true });
+
+    }());
+
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>

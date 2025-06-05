@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <block name="recaptcha_input_field_cf_turnstile"
+               template="BoxTwentyTwo_CloudflareTurnstile::hyva/cf_turnstile.phtml" />
+
+        <block name="recaptcha_validation_cf_turnstile"
+               template="BoxTwentyTwo_CloudflareTurnstile::hyva/js/script_token.phtml" />
+
+        <referenceContainer name="before.body.end">
+            <block name="cf_turnstile_base" template="BoxTwentyTwo_CloudflareTurnstile::hyva/js/script_loader.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

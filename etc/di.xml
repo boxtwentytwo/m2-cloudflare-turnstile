@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Config\Model\Config\TypePool">
+        <arguments>
+            <argument name="sensitive" xsi:type="array">
+                <item name="recaptcha_backend/type_cf_turnstile/public_key" xsi:type="string">1</item>
+                <item name="recaptcha_backend/type_cf_turnstile/private_key" xsi:type="string">1</item>
+                <item name="recaptcha_frontend/type_cf_turnstile/public_key" xsi:type="string">1</item>
+                <item name="recaptcha_frontend/type_cf_turnstile/private_key" xsi:type="string">1</item>
+            </argument>
+            <argument name="environment" xsi:type="array">
+                <item name="recaptcha_backend/type_cf_turnstile/public_key" xsi:type="string">1</item>
+                <item name="recaptcha_backend/type_cf_turnstile/private_key" xsi:type="string">1</item>
+                <item name="recaptcha_frontend/type_cf_turnstile/public_key" xsi:type="string">1</item>
+                <item name="recaptcha_frontend/type_cf_turnstile/private_key" xsi:type="string">1</item>
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="Magento\ReCaptchaAdminUi\Model\OptionSource\Type">
+        <arguments>
+            <argument name="options" xsi:type="array">
+                <item name="cf_turnstile" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Cloudflare Turnstile</item>
+                    <item name="value" xsi:type="string">cf_turnstile</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="BoxTwentyTwo\CloudflareTurnstile\Model\OptionSource\Size" type="Magento\ReCaptchaAdminUi\Model\OptionSource">
+        <arguments>
+            <argument name="options" xsi:type="array">
+                <item name="normal" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Normal</item>
+                    <item name="value" xsi:type="string">normal</item>
+                </item>
+                <item name="flexible" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Flexible</item>
+                    <item name="value" xsi:type="string">flexible</item>
+                </item>
+                <item name="compact" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Compact</item>
+                    <item name="value" xsi:type="string">compact</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="BoxTwentyTwo\CloudflareTurnstile\Model\OptionSource\Theme" type="Magento\ReCaptchaAdminUi\Model\OptionSource">
+        <arguments>
+            <argument name="options" xsi:type="array">
+                <item name="light" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Light Theme</item>
+                    <item name="value" xsi:type="string">light</item>
+                </item>
+                <item name="dark" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Dark Theme</item>
+                    <item name="value" xsi:type="string">dark</item>
+                </item>
+                <item name="auto" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Automatic</item>
+                    <item name="value" xsi:type="string">auto</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\ReCaptchaUi\Model\UiConfigResolver">
+        <arguments>
+            <argument name="uiConfigProviders" xsi:type="array">
+                <item name="admin_cf_turnstile" xsi:type="object">BoxTwentyTwo\CloudflareTurnstile\Model\Adminhtml\UiConfigProvider\Proxy</item>
+                <item name="frontend_cf_turnstile" xsi:type="object">BoxTwentyTwo\CloudflareTurnstile\Model\Frontend\UiConfigProvider\Proxy</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\ReCaptchaUi\Model\ValidationConfigResolver">
+        <arguments>
+            <argument name="validationConfigProviders" xsi:type="array">
+                <item name="admin_cf_turnstile" xsi:type="object">BoxTwentyTwo\CloudflareTurnstile\Model\Adminhtml\ValidationConfigProvider\Proxy</item>
+                <item name="frontend_cf_turnstile" xsi:type="object">BoxTwentyTwo\CloudflareTurnstile\Model\Frontend\ValidationConfigProvider\Proxy</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\ReCaptchaValidation\Model\ReCaptcha">
+        <arguments>
+            <argument name="requestMethod" xsi:type="object">BoxTwentyTwo\CloudflareTurnstile\Model\RequestMethod</argument>
+        </arguments>
+    </type>
+</config>

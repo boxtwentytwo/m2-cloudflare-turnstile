@@ -1,0 +1,46 @@
+<?php
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\ReCaptcha;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var HyvaCsp $hyvaCsp */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var StoreConfig $storeConfig */
+$storeConfig = $viewModels->require(StoreConfig::class);
+$siteKey = $storeConfig->getStoreConfig('recaptcha_frontend/type_cf_turnstile/public_key');
+
+if (!$siteKey) {
+    return;
+}
+
+$formId = $block->getData('form_id') ?? '';
+$recaptcha = $viewModels->require(ReCaptcha::class);
+$fieldName = $recaptcha->getResultTokenFieldName($formId);
+
+?>
+<?php if ($block->getData('render_script_tag')): ?>
+<script>
+    <?php endif; ?>
+    this.hasCaptchaToken = $form['<?= $escaper->escapeJs($fieldName) ?>'] &&
+        $form['<?= $escaper->escapeJs($fieldName) ?>'].value.length > 0;
+    this.errors = this.hasCaptchaToken ? 0 : 1;
+
+    if (this.errors) {
+        window.dispatchMessages && window.dispatchMessages(
+            [{
+                type: "error",
+                text: '<?= $escaper->escapeJs(__('Cloudflare Turnstile validation failed, please try again')) ?>'
+            }], 5000
+        );
+    }
+
+    <?php if ($block->getData('render_script_tag')): ?>
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>
+<?php endif; ?>

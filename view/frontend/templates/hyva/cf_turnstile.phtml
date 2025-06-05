@@ -1,0 +1,68 @@
+<?php
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\ReCaptcha;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var HyvaCsp $hyvaCsp */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var StoreConfig $storeConfig */
+$storeConfig = $viewModels->require(StoreConfig::class);
+$recaptcha = $viewModels->require(ReCaptcha::class);
+
+$siteKey = $storeConfig->getStoreConfig('recaptcha_frontend/type_cf_turnstile/public_key');
+$size = $storeConfig->getStoreConfig('recaptcha_frontend/type_cf_turnstile/size');
+$theme = $storeConfig->getStoreConfig('recaptcha_frontend/type_cf_turnstile/theme');
+$language = $storeConfig->getStoreConfig('recaptcha_frontend/type_cf_turnstile/lang') ?: 'auto';
+
+if (!$siteKey) {
+    return;
+}
+
+$inputElementId = $block->getData('input_element_id');
+$instanceSuffix = $recaptcha->calcJsInstanceSuffix($inputElementId ?: $block->getData('form_id') ?: 'x');
+$grecaptchaContainerId = "grecaptcha-container-$instanceSuffix";
+?>
+
+<div id="<?= $escaper->escapeHtmlAttr($grecaptchaContainerId) ?>" class="g-recaptcha"></div>
+<script>
+    'use strict';
+    (() => {
+        const containerId = '<?= $escaper->escapeJs($grecaptchaContainerId) ?>';
+        const initTurnstile = () => {
+            turnstileLoadCallbacks.push(() => {
+                grecaptcha.render('#' + containerId, {
+                    sitekey: '<?= $escaper->escapeJs($siteKey) ?>',
+                    size: '<?= $escaper->escapeJs($size) ?>',
+                    theme: '<?= $escaper->escapeJs($theme) ?>',
+                    language: '<?= $escaper->escapeJs($language) ?>'
+                });
+            });
+            const container = document.getElementById(containerId);
+            if (container && ! container.closest) {
+                container.closest = function (s) {
+                    let el = container;
+                    do {
+                        if (el.matches(s)) return el;
+                        el = el.parentElement || el.parentNode;
+                    } while (el !== null && el.nodeType === 1);
+                }
+            }
+            forceLoadTurnstileScript(document.getElementById(containerId).closest('form'));
+        };
+
+        if (document.readyState !== 'loading') {
+            setTimeout(() => {
+                initTurnstile();
+            });
+        } else {
+            document.addEventListener('DOMContentLoaded', initTurnstile);
+        }
+    })();
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>

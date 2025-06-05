@@ -1,0 +1,37 @@
+<?php
+/** @var $block Magento\ReCaptchaUi\Block\ReCaptcha */
+$config = $block->getCaptchaUiConfig();
+$renderingOptions = $config['rendering'] ?? [];
+?>
+<div class="admin__field field-recaptcha">
+    <div id="admin-recaptcha"
+         class="admin-recaptcha-content<?=
+         /* @noEscape */ !empty($renderingOptions['size']) ? ' size-' . $renderingOptions['size'] : '' ?>"></div>
+</div>
+<script>
+    require([
+        'jquery'
+    ], function (
+        $
+    ) {
+        const element = document.createElement('script');
+        const scriptTag = document.getElementsByTagName('script')[0];
+
+        element.async = true;
+        element.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js'
+            + '?compat=recaptcha&onload=globalOnRecaptchaOnLoadCallback&render=explicit';
+
+        let isRecaptchaLoaded = false;
+        let widgetId = 0;
+
+        window.globalOnRecaptchaOnLoadCallback = function () {
+            widgetId = grecaptcha.render('#admin-recaptcha', {
+                <?php foreach ($renderingOptions as $key => $value): ?>
+                '<?= $block->escapeJs($key) ?>': '<?= $block->escapeJs($value) ?>',
+                <?php endforeach; ?> 'callback': function (_token) {}
+            });
+            isRecaptchaLoaded = true;
+        }
+        scriptTag.parentNode.insertBefore(element, scriptTag);
+    });
+</script>
