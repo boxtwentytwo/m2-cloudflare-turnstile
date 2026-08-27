@@ -1,6 +1,6 @@
 {
     "name": "boxtwentytwo/module-cloudflare-turnstile",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Adds Cloudflare Turnstile support to Magento 2",
     "type": "magento2-module",
     "authors": [
@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "php": "~8.2.0||~8.3.0||~8.4.0",
+        "php": "~8.2.0||~8.3.0||~8.4.0||~8.5.0",
         "magento/framework": "*",
         "magento/module-config": "*",
         "magento/module-re-captcha-admin-ui": "1.1.*",
